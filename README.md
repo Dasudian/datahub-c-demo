@@ -1,2 +1,3 @@
 # datahub-c-demo
-A demo application to use dasudian datahub c language sdk.
+
+demo applications use dasudian datahub SDK implemented by c language.
