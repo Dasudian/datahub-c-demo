@@ -5,7 +5,6 @@
 #ifndef DATAHUB_SDK_C_H
 #define DATAHUB_SDK_C_H
 
-#include "MQTTClient.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -331,7 +330,7 @@ enum datahub_error_code_s {
  *              Note:Can not be NULL.
  *      instance_key: key of id for connecting to servers of dasudian.
  *              Note:Can not be NULL
- *      user_name: name of device.
+ *      client_name: name of device.
  *              Note:Can not be NULL
  *      client_id: id of device.
  *              Note:Can not be NULL
@@ -344,7 +343,7 @@ enum datahub_error_code_s {
  *      defined with a beginning of "DE_"
  */
 extern int datahub_create(datahub_client *client,
-        char *instance_id, char *instance_key, char *user_name, char *client_id,
+        char *instance_id, char *instance_key, char *client_name, char *client_id,
         datahub_options *options);
 
 /*

@@ -1,10 +1,10 @@
 /*
- * unsubscribe a topic
+ * send message synchronously
  */
 
 #include "datahub_sdk_c.h"
 #include <string.h>
-#include <stdlib.h>
+#include <stdio.h>
 
 /* instance id, gived by dasudian */
 #define INSTANCE_ID    "dsd_9FmYSNiqpFmi69Bui0_A"
@@ -17,10 +17,15 @@
 
 static char *topic = "topic";
 
+static char *send_message = {
+    "hello world"
+};
+
 int main()
 {
     datahub_client client;
     int ret;
+    datahub_message msg = DATAHUB_MESSAGE_INITIALIZER ;
 
     /* create a client object */
     ret = datahub_create(&client,
@@ -38,17 +43,16 @@ int main()
         return 1;
     }
 
-    /* subscribe a topic */
-    ret = datahub_subscribe(&client, topic);
-    if (DE_OK != ret) {
-        fprintf(stdout, "subscribed topic [ %s ] failed\n", topic);
-        return 1;
-    }
+    /* message to send */
+    msg.payload = send_message;
+    /* len of message */
+    msg.payload_len = strlen(send_message) + 1;//including '\0'
 
-    /* unsubscribe a topic */
-    ret = datahub_unsubscribe(&client, topic);
+    /* send message synchronously */
+    ret = datahub_sendrequest(&client, topic, &msg);
     if (DE_OK != ret) {
-        fprintf(stdout, "unsubscribed topic [ %s ] failed\n", topic);
+        fprintf(stdout, "synchronously send message failed\n");
+        datahub_disconnect(&client);
         return 1;
     }
 
@@ -57,3 +61,4 @@ int main()
 
     return 0;
 }
+
