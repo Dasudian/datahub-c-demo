@@ -12,13 +12,13 @@ To use the SDK:
 
 1.  Create a client object
 
-2.  Set the options to connect to a cloud instance, including callbacks
+2.  Set or not set the options for connecting to a cloud instance
 
 3.  Subsrcibe to topics depending on whether the client needs to receive messages
 
 4.  Repeatedly publishing messages or handling messages
 
-5.  Disconnect the client
+5.  Disconnect the client object
 
 ## create client of datahub
 
@@ -35,7 +35,7 @@ To use the SDK:
  *              Note:Can not be NULL
  *      client_name: name of a device/client, usually describe the device/client
  *              Note:Can not be NULL
- *      client_id: id of device/client, uniquely identify a device/client
+ *      client_id: id of device/client, uniquely identifying a device/client
  *              Note:Can not be NULL
  *      options: options of MQTT. See structure datahub_options for details. If you don't want
  *              to set them, just pass NULL. If you want to set some options, please use
@@ -95,10 +95,10 @@ extern int datahub_isconnected(datahub_client *client);
  *      msg: define a message, use DATAHUB_MESSAGE_INITIALIZER to init first.
  *          then specfy your own data and length of data.
  *          Note: can not be NULL
- *      dt: a token representing a message being delivered is returned by this function.
+ *      dt: a token representing a message being delivered, returned by this function.
  *          If you do not care whether this message arrives cloud, set it as NULL.
- *          If you want to know whether this message is deliveried successfully,
- *          this token should be defined and used in delivered callback(set option msg_delivered_cb)
+ *          Otherwise, this token should be defined and used in delivered callback.See
+ *          option msg_delivered_cb for details.
  *          Note:can be NULL
  * return value:
  *      DE_OK is returned when success,otherwise failed.Error codes are
@@ -114,7 +114,7 @@ extern int datahub_publish(datahub_client *client, char *topic,
 /*
  * description:
  *      send messages synchronously
- *      Note: program will block untill message is deliveried
+ *      Note: program will block untill message is delivered
  * parameter:
  *      client: returned by datahub_create()
  *          Note: can not be NULL
