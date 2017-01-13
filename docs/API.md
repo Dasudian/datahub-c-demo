@@ -354,13 +354,15 @@ It will take about 60 seconds to know a connection is lost. When connection is l
 
 ### Linux
 
-. Platform: Ubuntu 16.04 LTS 4.4.0-59-generic x86_64
+.Platform: Ubuntu 16.04 LTS 4.4.0-59-generic x86_64
+
 . Compiler: gcc 5.4.0
 
 ### Windows
 
 
 . Platform: Windows 7 Home Basic x86_64
+
 . Compiler: Code Blocks 16.01
 
 
