@@ -1,8 +1,8 @@
+# API Definition of Dasudian IoT DataHub C SDK
+
 | Author | Date | Version | Note |
 |---|---|---|---|
 | Eden Wang | 1/13/2017 | 1.0.0 | first version |
-
-# API Definition of Dasudian IoT DataHub C SDK
 
 ## General Info
 These are the C APIs which use protocol MQTT to tranfer massively real-time data to Dasudian IoT Cloud
