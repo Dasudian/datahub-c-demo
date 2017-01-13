@@ -40,7 +40,7 @@ This directory includes all the .so files. Useful for Linux.
 
 if we want to compile *demo/datahub_demo_send_asyn.c*,
 
-on Ubuntu with gcc:
+### Ubuntu with gcc:
 
 ```
 $gcc demo/datahub_demo_send_asyn.c -o main -I include -L lib64-linux -ldatahub-sdk -lpaho-mqtt3cs -lssl -lcrypto -Wl,-rpath=lib64-linux
@@ -51,7 +51,7 @@ $
 ```
 It should work, Otherwise you can see Q&A for help.
 
-on Windows with Code Blocks:
+### Windows with Code Blocks:
 
 Firstly, you should built a project including *demo/datahub_demo_send_asyn.c*
 
