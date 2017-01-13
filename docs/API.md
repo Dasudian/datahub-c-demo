@@ -470,6 +470,8 @@ It should work on both windows x86 and windows x86_64. But if the version of som
 
 ### Ubuntu
 
+We use gcc as compiler default.
+
 Q:
 ```
 datahub_demo_send_syn.c:(.text+0x49): undefined reference to `datahub_create'
@@ -514,6 +516,8 @@ Q:
 A: You should add compilation option: -Wl,-rpath=lib64-linux
 
 ### Windows
+
+We use Code Blocks as compiler default.
 
 Q:
 ```
