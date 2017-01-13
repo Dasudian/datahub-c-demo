@@ -1,3 +1,7 @@
+|---|---|---|---|
+| Author | Date | Version | Note |
+| Eden Wang | 1/13/2017 | 1.0.0 | first version |
+
 # API Definition of Dasudian IoT DataHub C SDK
 
 ## General Info
@@ -20,7 +24,9 @@ To use the SDK:
 
 5.  Disconnect the client object
 
-## create client of datahub
+## API
+
+### create client of datahub
 
 ```
 /*
@@ -50,7 +56,7 @@ extern int datahub_create(datahub_client *client,
         datahub_options *options);
 ```
 
-## connect to cloud
+### connect to cloud
 
 ```
 /*
@@ -66,7 +72,7 @@ extern int datahub_create(datahub_client *client,
 extern int datahub_connect(datahub_client *client);
 ```
 
-## get the status of client
+### get the status of client
 
 ```
 /*
@@ -81,7 +87,7 @@ extern int datahub_connect(datahub_client *client);
 extern int datahub_isconnected(datahub_client *client);
 ```
 
-## send messages (asynchronous)
+### send messages (asynchronous)
 
 ```
 /*
@@ -108,7 +114,7 @@ extern int datahub_isconnected(datahub_client *client);
 extern int datahub_publish(datahub_client *client, char *topic,
         datahub_message *msg, datahub_delivery_token *dt);
 ```
-## send messages (synchronous)
+### send messages (synchronous)
 
 ```
 /*
@@ -131,7 +137,7 @@ extern int datahub_publish(datahub_client *client, char *topic,
 extern int datahub_sendrequest(datahub_client *client, char *topic, datahub_message *msg);
 ```
 
-## subscribe to a topic (synchronous)
+### subscribe to a topic (synchronous)
 
 ```
 /*
@@ -149,7 +155,7 @@ extern int datahub_sendrequest(datahub_client *client, char *topic, datahub_mess
 extern int datahub_subscribe(datahub_client *client, char *topic);
 ```
 
-## unsubscribe a topic(synchronous)
+### unsubscribe a topic(synchronous)
 
 ```
 /*
@@ -167,7 +173,7 @@ extern int datahub_subscribe(datahub_client *client, char *topic);
 extern int datahub_unsubscribe(datahub_client *client, char *topic);
 ```
 
-## close session(synchronous)
+### close session(synchronous)
 
 ```
 /*
@@ -183,9 +189,9 @@ extern int datahub_unsubscribe(datahub_client *client, char *topic);
 extern int datahub_disconnect(datahub_client *client);
 ```
 
-## free memory of message
+### free memory of message
 
-```
+````
 /*
  * description:
  *      free the memory the message occupies
@@ -197,4 +203,261 @@ extern int datahub_disconnect(datahub_client *client);
  *      none
  */
 extern void datahub_message_free(datahub_message *msg);
+````
+
+## Data structure
+
+### datahub_options
+
 ```
+typedef struct datahub_options_s {
+    /*
+     * description:
+     *      url of server.
+     * value:
+     *      "protocol://host:port".protocol supports tcp and ssl;host can be ip or domain
+     *      default is DEFAULT_SERVER_URL
+     */
+    char *server_url;
+
+    /*
+     * description:
+     *      whether or not reconnect automatically if connection is lost.
+     *      When connection is lost,(1)if auto_reconnect is set DATAHUB_TRUE,then we will
+     *      try reconnect to server in a few seconds,(2)If auto_reconnect is set DATAHUB_FALSE,
+     *      callback "connection_lost_cb" will be called if it's set
+     * value:
+     *      DATAHUB_TRUE means yes and DATAHUB_FALSE means no.
+     *      default is DEFAULT_AUTO_RECON
+     */
+    int auto_reconnect;
+
+    /*
+     * description:
+     *      whether or not clean session after disconnecting
+     * value:
+     *      DATAHUB_TRUE means yes and DATAHUB_FALSE means no
+     *      default is DEFAULT_CLEAN_SES
+     */
+    int clean_session;
+
+    /*
+     * description:
+     *      timeout when connecting server(seconds)
+     * value:
+     *      works when value > 0
+     *      default is DEFAULT_CONN_TMOUT
+     */
+    long long connection_timeout;
+
+    /*
+     * description:
+     *      timeout when sending message synchronously
+     * value:
+     *      works when value > 0
+     *      default is DEFAULT_COMM_TMOUT
+     */
+    long long command_timeout;
+
+    /*
+     * description:
+     *      ignore certificate when connecting to server with security
+     * value:
+     *      DATAHUB_TRUE means yes and DATAHUB_FALSE means no
+     *      default is DEFAULT_IGN_CERT
+     *      note:must be DATAHUB_TRUE for now
+     */
+    int ignore_certificate;
+
+    /*
+     * description:
+     *      use default certificate when connecting with security
+     * value:
+     *      DATAHUB_TRUE means yes and DATAHUB_FALSE means no
+     *      default is DEFAULT_DEF_CERT
+     *      note:not support yet,will be added in the future
+     */
+    int default_certificate;
+
+    /*
+     * description:
+     *      use private certificate when connecting with security
+     * value:
+     *      NULL or path of certificate
+     *      default is DEFAULT_PRIVATE_CERT
+     *      note:not support yet,will be added in the future
+     */
+    char *private_certificate;
+
+    /*
+     * description:
+     *      a pointer which will be passed as an argument to callbacks,
+     *      including msg_delivered_cb,msg_received_cb,and connection_lost_cb.
+     *      this three callbacks is defined below.
+     */
+    void *context;
+     /*
+     * description:
+     *      a callback,called after delivering a message
+     * value:
+     *      NULL or a valid callback
+     *      default is DEFAULT_CALLBACK
+     */
+    MESSAGE_DELIVERED *msg_delivered_cb;
+
+    /*
+     * description:
+     *      a callback,called after receiving a message
+     * value:
+     *      NULL or a valid callback
+     *      default is DEFAULT_CALLBACK
+     */
+    MESSAGE_RECEIVED *msg_received_cb;
+
+    /*
+     * description:
+     *      a callback,called after losing connection.
+     *      option "auto_reconnect" must be set DATAHUB_FALSE otherwise this callback
+     *      will not be called.
+     * value:
+     *      NULL or a valid callback
+     *      default is DEFAULT_CALLBACK
+     */
+    CONNECTION_LOST *connection_lost_cb;
+}datahub_options;
+```
+
+### datahub_message
+
+```
+typedef struct datahub_message_s {
+    /* len of message */
+    int payload_len;
+    /* start of message */
+    void *payload;
+}datahub_message;
+```
+
+## Glossary
+
+### client_id
+
+*client_id* is used to identify a device. For example, if you have 2 sensors which will connect to server, one sensor's *client_name* can be "sensor1" and *client_id* can be "1". Another sensor's *client_name* can be "sensor2"(it can be set "sensor1" too) and *client_id* must **not** be "1". You can set it as "2". That means the server identifies a sensor by *client_id*.
+
+It also means if you want to create several connections with server, you should set a **unique** *client_id* for every connection.
+
+### auto_reconnect
+
+It will take about 60 seconds to know a connection is lost. When connection is lost, we will try to reconnect to server if you set auto_reconnect as DATAHUB_TRUE. If it still fails, retry will start in 2s,then 4s,8s,...The maxmine interval is 64s.
+
+## Development environment
+
+### Linux
+
+. Platform: Ubuntu 16.04 LTS 4.4.0-59-generic x86_64
+. Compiler: gcc 5.4.0
+
+### Windows
+
+
+. Platform: Windows 7 Home Basic x86_64
+. Compiler: Code Blocks 16.01
+
+
+## Running environment
+
+### Linux
+
+It should work on all Linux distributions. But if the version of some dependencies on your Linux distribution are less than what the development environment depends, it may not work. Please upgrade your machine or contact support@dasudian.com.
+
+### Windows
+
+It should work on both windows x86 and windows x86_64. But if the version of some dependencies are less than what the development environment depends, it may not work. Please upgrade your machine or contact support@dasudian.com.
+
+## Q&A
+
+### Ubuntu
+
+Q:
+```
+datahub_demo_send_syn.c:(.text+0x49): undefined reference to `datahub_create'
+datahub_demo_send_syn.c:(.text+0x86): undefined reference to `datahub_connect'
+datahub_demo_send_syn.c:(.text+0xf1): undefined reference to `datahub_sendrequest'
+datahub_demo_send_syn.c:(.text+0x124): undefined reference to `datahub_disconnect'
+datahub_demo_send_syn.c:(.text+0x137): undefined reference to `datahub_disconnect'
+```
+
+A: You should add compilation option: -ldatahub-sdk
+
+Q:
+```
+/usr/bin/ld: cannot find -ldatahub-sdk
+```
+
+A: You should add compilation option: -L lib64-linux
+
+Q:
+```
+lib64-linux//libdatahub-sdk.so: undefined reference to `MQTTClient_subscribe'
+lib64-linux//libdatahub-sdk.so: undefined reference to `MQTTClient_disconnect'
+lib64-linux//libdatahub-sdk.so: undefined reference to `MQTTClient_setCallbacks'
+lib64-linux//libdatahub-sdk.so: undefined reference to `MQTTClient_publishMessage'
+lib64-linux//libdatahub-sdk.so: undefined reference to `MQTTClient_isConnected'
+lib64-linux//libdatahub-sdk.so: undefined reference to `MQTTClient_connect'
+lib64-linux//libdatahub-sdk.so: undefined reference to `MQTTClient_unsubscribe'
+lib64-linux//libdatahub-sdk.so: undefined reference to `MQTTClient_destroy'
+lib64-linux//libdatahub-sdk.so: undefined reference to `MQTTClient_free'
+lib64-linux//libdatahub-sdk.so: undefined reference to `MQTTClient_waitForCompletion'
+lib64-linux//libdatahub-sdk.so: undefined reference to `MQTTClient_create'
+lib64-linux//libdatahub-sdk.so: undefined reference to `MQTTClient_freeMessage'
+```
+
+A: You should add compilation option: -lpaho-mqtt3cs
+
+Q:
+```
+./main: error while loading shared libraries: libdatahub-sdk.so: cannot open shared object file: No such file or directory
+```
+
+A: You should add compilation option: -Wl,-rpath=lib64-linux
+
+### Windows
+
+Q:
+```
+xxx.c: fatal error: datahub_sdk_c.h: No such file or directory
+```
+
+A:Path of searching directories is set wrongly. Try:
+
+Your Projects -> Build options -> Search directories -> Compiler -> Add, then choose the directory including "datahub_sdk_c.h"(default is *include*)
+
+Q:
+```
+xxx.c: undefined reference to `datahub_create'
+xxx.c: undefined reference to `datahub_connect'
+xxx.c: undefined reference to `datahub_sendrequest'
+xxx.c: undefined reference to `datahub_disconnect'
+xxx.c: undefined reference to `datahub_disconnect'
+```
+A:Path of searching dynamic libraries is set wrongly. Try:
+
+Projects -> Build options -> Search directories -> Linker -> Add, then choose the directory including "datahub_sdk.dll"(default is *lib32-win*)
+
+Projects -> Build options -> Linker Settings -> Add, then choose the file "datahub_sdk.dll" in directory lib32-win.(default filter is .so or .a, you should change it to "All files(\*)". So "datahub_sdk.dll" is found)
+
+Q:无法启动此程序，因为计算机中丢失paho-mqtt3c.dll。尝试重新安装该程序以解决此问题
+
+A:Please copy all .dll files in directory *lib32-win* to the same path of the application
+
+Q:无法启动此程序，因为计算机中丢失LIBEAY32.dll。尝试重新安装该程序以解决此问题
+
+A:Please copy all .dll files in directory *lib32-win* to  the same path of the application
+
+Q:无法启动此程序，因为计算机中丢失SSLEAY32.dll。尝试重新安装该程序以解决此问题
+
+A:Please copy all .dll files in directory *lib32-win* to  the same path of the application
+
+## Contact
+
+If there are other problems or advice, Please send a email to support@dasudian.com.

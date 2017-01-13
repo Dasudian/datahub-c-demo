@@ -85,7 +85,7 @@ demo applications tests successfully in the following environment.
 
 2. Compiler: Code Blocks 16.01
 
-## FAQ
+## Q&A
 
 ### Ubuntu
 
