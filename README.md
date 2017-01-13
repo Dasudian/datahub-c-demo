@@ -71,7 +71,7 @@ Finally, click 'build' and then 'run'. It should work, Otherwise you can see Q&A
 
 ## Test environment of demo applications
 
-demo applications tests successfully in the following enveronment. 
+demo applications tests successfully in the following environment. 
 
 ### Ubuntu
 
