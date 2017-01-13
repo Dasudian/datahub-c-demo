@@ -1,6 +1,5 @@
-|---|---|---|---|
-------------------
 | Author | Date | Version | Note |
+|---|---|---|---|
 | Eden Wang | 1/13/2017 | 1.0.0 | first version |
 
 # API Definition of Dasudian IoT DataHub C SDK
