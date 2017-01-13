@@ -338,6 +338,96 @@ typedef struct datahub_message_s {
 }datahub_message;
 ```
 
+## Error codes
+
+```
+enum datahub_error_code_s {
+    /*
+     * Return code: success
+     */
+    DE_OK = 0,
+    /*
+     * Return code: unacceptable protocol version
+     */
+    DE_UNACCEPT_PROTO_VER = 1,
+    /*
+     * Return code: identifier rejected
+     */
+    DE_IDENT_REJ = 2,
+    /*
+     * Return code: server unavailable
+     */
+    DE_SERVER_UNAVAIL = 3,
+    /*
+     * Return code: bad instance id or instance key
+     */
+    DE_BAD_UNAME_PASSWD = 4,
+    /*
+     * Return code: unathorized
+     */
+    DE_UNATHOR = 5,
+
+    /*
+     * Return code:server authorizing users is unavailable
+     */
+    DE_AUTHO_SERVER_UNAVAIL = 300,
+     /*
+     * Return code: other errors when connecting to server
+     */
+    DE_CONNECT_OTHER_ERROR = 301,
+    /*
+     * Return code: some essential arguments are NULL
+     */
+    DE_NULL = 302,
+    /*
+     * Return code: memory allocation failed
+     */
+    DE_MEM_ALLOC = 303,
+    /*
+     * Return code: create client of MQTT failed
+     */
+    DE_CREATE_MQTT_CLI = 304,
+    /*
+     * Return code: set callbacks of MQTT failed
+     */
+    DE_SET_CB_ERROR = 305,
+
+    /*
+     * Return code: message is wrong
+     */
+    DE_MESSAGE_ERROR = 306,
+    /*
+     * Return code: error occurs when sending a message
+     */
+    DE_SEND_MSG_ERROR = 307,
+
+    /*
+     * Return code: error occurs when subscribing a topic
+     */
+    DE_SUBSCRIBE_ERROR = 308,
+
+    /*
+     * Return code: error occurs when unsubscribing a topic
+     */
+    DE_UNSUBSCRIBE_ERROR = 309,
+
+    /*
+     * Return code: error occurs when disconnecting
+     */
+    DE_DISCON_FAIL = 310,
+
+    /*
+     * Return code: client is disconnected
+     */
+    DE_CLIENT_DISCON = 311,
+
+    /*
+     * Return code: connect fail,losing Internet or bad url of server
+     *  can cause this
+     */
+    DE_CON_FAIL = 312
+};
+```
 ## Glossary
 
 ### client_id
