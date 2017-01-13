@@ -460,6 +460,6 @@ Q:无法启动此程序，因为计算机中丢失SSLEAY32.dll。尝试重新安
 
 A:Please copy all .dll files in directory *lib32-win* to  the same path of the application
 
-## Contact
+## Support
 
 If there are other problems or advice, Please send a email to support@dasudian.com.
