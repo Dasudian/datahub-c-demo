@@ -71,6 +71,8 @@ Finally, click 'build' and then 'run'. It should work, Otherwise you can see Q&A
 
 ## Test environment of demo applications
 
+demo applications tests successfully in the following enveronment. 
+
 ### Ubuntu
 
 1. Platform:Ubuntu 16.04LTS 4.4.0-31-generic x86_64
@@ -79,7 +81,7 @@ Finally, click 'build' and then 'run'. It should work, Otherwise you can see Q&A
 
 ### Windows
 
-1. Platform: Windows x86_64
+1. Platform: Windows 7 Home Basic x86_64
 
 2. Compiler: Code Blocks 16.01
 
@@ -88,7 +90,6 @@ Finally, click 'build' and then 'run'. It should work, Otherwise you can see Q&A
 ### Ubuntu
 
 Q:
-
 ```
 datahub_demo_send_syn.c:(.text+0x49): undefined reference to `datahub_create'
 datahub_demo_send_syn.c:(.text+0x86): undefined reference to `datahub_connect'
@@ -100,7 +101,6 @@ datahub_demo_send_syn.c:(.text+0x137): undefined reference to `datahub_disconnec
 A: You should add compilation option: -ldatahub-sdk
 
 Q:
-
 ```
 /usr/bin/ld: cannot find -ldatahub-sdk
 ```
@@ -108,7 +108,6 @@ Q:
 A: You should add compilation option: -L lib64-linux
 
 Q:
-
 ```
 lib64-linux//libdatahub-sdk.so: undefined reference to `MQTTClient_subscribe'
 lib64-linux//libdatahub-sdk.so: undefined reference to `MQTTClient_disconnect'
@@ -127,7 +126,6 @@ lib64-linux//libdatahub-sdk.so: undefined reference to `MQTTClient_freeMessage'
 A: You should add compilation option: -lpaho-mqtt3cs
 
 Q:
-
 ```
 ./main: error while loading shared libraries: libdatahub-sdk.so: cannot open shared object file: No such file or directory
 ```
@@ -137,7 +135,6 @@ A: You should add compilation option: -Wl,-rpath=lib64-linux
 ### Windows
 
 Q:
-
 ```
 xxx.c: fatal error: datahub_sdk_c.h: No such file or directory
 ```
@@ -147,7 +144,6 @@ A:Path of searching directories is set wrongly. Try:
 Your Projects -> Build options -> Search directories -> Compiler -> Add, then choose the directory including "datahub_sdk_c.h"(default is *include*)
 
 Q:
-
 ```
 xxx.c: undefined reference to `datahub_create'
 xxx.c: undefined reference to `datahub_connect'
