@@ -36,6 +36,10 @@ This directory includes all the .dll files. Useful for Windows.
 
 This directory includes all the .so files. Useful for Linux.
 
+## Not thread safety
+
+For now, these APIs are not thread safety.
+
 ## How to compile and run demo applications
 
 if we want to compile *demo/datahub_demo_send_asyn.c*,
