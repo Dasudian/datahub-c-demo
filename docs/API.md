@@ -3,6 +3,7 @@
 | Author | Date | Version | Note |
 |---|---|---|---|
 | Eden Wang | 1/13/2017 | 1.0.0 | first version |
+| Eden Wang | 2/14/2017 | 1.1.0 | add option debug|
 
 ## General Info
 These are the C APIs which use protocol MQTT to tranfer massively real-time data to Dasudian IoT Cloud
@@ -288,6 +289,15 @@ typedef struct datahub_options_s {
      *      note:not support yet,will be added in the future
      */
     char *private_certificate;
+
+    /*
+     * description:
+     *      switch to open/close debug. For debug
+     *  value:
+     *      DATAHUB_FALSE or DATAHUB_TRUE
+     *      default is DATAHUB_FALSE
+     */
+    int isdebug;
 
     /*
      * description:

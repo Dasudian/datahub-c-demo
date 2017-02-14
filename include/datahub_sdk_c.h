@@ -21,6 +21,7 @@
 #define DEFAULT_IGN_CERT        DATAHUB_TRUE
 #define DEFAULT_DEF_CERT        DATAHUB_FALSE
 #define DEFAULT_PRIVATE_CERT    "private_cert"
+#define DEFAULT_DEBUG_OPT       DATAHUB_FALSE
 #define DEFAULT_CONTEXT         NULL
 #define DEFAULT_CALLBACK        NULL
 
@@ -33,6 +34,7 @@
     DEFAULT_IGN_CERT,\
     DEFAULT_DEF_CERT,\
     DEFAULT_PRIVATE_CERT,\
+    DEFAULT_DEBUG_OPT,\
     DEFAULT_CONTEXT,\
     DEFAULT_CALLBACK,\
     DEFAULT_CALLBACK,\
@@ -195,6 +197,14 @@ typedef struct datahub_options_s {
      *      note:not support yet,will be added in the future
      */
     char *private_certificate;
+    /*
+     * description:
+     *      switch to open/close debug. For debug
+     *  value:
+     *      DATAHUB_FALSE or DATAHUB_TRUE
+     *      default is DATAHUB_FALSE
+     */
+    int isdebug;
 
     /*
      * description:
