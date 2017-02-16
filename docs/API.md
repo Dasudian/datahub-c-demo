@@ -4,6 +4,7 @@
 |---|---|---|---|
 | Eden Wang | 1/13/2017 | 1.0.0 | first version |
 | Eden Wang | 2/14/2017 | 1.1.0 | add option debug|
+| Eden Wang | 2/16/2017 | 1.2.0 | Length of message should be less than 512K|
 
 ## General Info
 These are the C APIs which use protocol MQTT to tranfer massively real-time data to Dasudian IoT Cloud
@@ -100,7 +101,8 @@ extern int datahub_isconnected(datahub_client *client);
  *      topic: name of topic the message belongs to or regards
  *          Note:can not be NULL
  *      msg: define a message, use DATAHUB_MESSAGE_INITIALIZER to init first.
- *          then specfy your own data and length of data.
+ *          then specify your own data and length of data. Remember, the length of message
+ *          should be less than 512K, or an error code is returned
  *          Note: can not be NULL
  *      dt: a token representing a message being delivered, returned by this function.
  *          If you do not care whether this message arrives cloud, set it as NULL.
@@ -128,7 +130,8 @@ extern int datahub_publish(datahub_client *client, char *topic,
  *      topic: name of topic the message belongs to or regards
  *          Note: can not be NULL
  *      msg: define a message, use DATAHUB_MESSAGE_INITIALIZER to init first.
- *          then specfy your own data and length of data.
+ *          then specify your own data and length of data. Remember, the length of message
+ *          should be less than 512K, or an error code is returned
  *          Note:can not be NULL
  * return value:
  *      DE_OK is returned when success,otherwise failed.Error codes are
