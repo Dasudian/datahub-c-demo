@@ -4,6 +4,7 @@
 |---|---|---|---|
 | Eden Wang | 1/13/2017 | 1.0.0 | first version |
 | Eden Wang | 2/14/2017 | 1.1.0 | add option debug|
+| Eden Wang | 2/16/2017 | 1.2.0 | Length of message should be less than 512K|
 
 ## General Info
 These are the C APIs which use protocol MQTT to tranfer massively real-time data to Dasudian IoT Cloud
