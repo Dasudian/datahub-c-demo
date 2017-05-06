@@ -1,5 +1,5 @@
 /*
- * 异步发送消息
+ * demo源代码
  */
 
 #include "datahub_sdk_c.h"
@@ -23,6 +23,16 @@ static char *send_message = {
     "hello world"
 };
 
+/* 接收到消息后的回调函数 */
+static void message_received(void *context, char *topic, datahub_message *msg)
+{
+    fprintf("receive a message:\n");
+    fprintf("topic: %s\n", topic);
+    fprintf("payload: %*.s\n", msg->payload_len, (char *)msg->payload);
+
+    datahub_callback_free(topic, msg);
+}
+
 int main()
 {
     datahub_client client;
@@ -32,6 +42,8 @@ int main()
 
     /* 设置服务器地址 */
     options.server_url = "tcp://localhost:1883";
+    /* 设置接收到消息后的回调函数 */
+    options.message_received = message_received;
 
     /* 创建客户端实例 */
     ret = datahub_create(&client,
@@ -42,6 +54,14 @@ int main()
         return 1;
     } else {
         fprintf(stdout, "create client success\n");
+    }
+
+    /* 订阅待发送消息的topic, 最大以qos1接收, 这样就可以接收到自己发送的消息 */
+    ret = datahub_subscribe(&client, topic, 1);
+    if (ERROR_NONE != ret) {
+        fprintf(stdout, "subscribe topic %s failed\n", topic);
+    } else {
+        fprintf(stdout, "subscribe topic %s success\n", topic);
     }
 
     /* 发送的消息 */
@@ -57,6 +77,16 @@ int main()
         fprintf(stdout, "asynchronously send message success\n");
     }
 
+    /* 同步发送qos2消息 */
+    ret = datahub_sendrequest(&client, topic, &msg, 1, 2);
+    if (ERROR_NONE != ret) {
+        fprintf(stdout, "synchronously send message failed\n");
+    } else {
+        fprintf(stdout, "synchronously send message success\n");
+    }
+
+    /* 睡眠以便于接收完服务器下发的消息 */
+    sleep(3);
     /* 断开连接并销毁客户端 */
     datahub_destroy(&client);
     fprintf(stdout, "destroy client success\n");
