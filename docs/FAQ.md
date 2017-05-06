@@ -22,18 +22,18 @@ A: 需要指明SDK库所在的路径: -L lib
 
 Q:
 ```
-lib//libdatahub-sdk.so: undefined reference to `MQTTClient_subscribe'
-lib//libdatahub-sdk.so: undefined reference to `MQTTClient_disconnect'
-lib//libdatahub-sdk.so: undefined reference to `MQTTClient_setCallbacks'
-lib//libdatahub-sdk.so: undefined reference to `MQTTClient_publishMessage'
-lib//libdatahub-sdk.so: undefined reference to `MQTTClient_isConnected'
-lib//libdatahub-sdk.so: undefined reference to `MQTTClient_connect'
-lib//libdatahub-sdk.so: undefined reference to `MQTTClient_unsubscribe'
-lib//libdatahub-sdk.so: undefined reference to `MQTTClient_destroy'
-lib//libdatahub-sdk.so: undefined reference to `MQTTClient_free'
-lib//libdatahub-sdk.so: undefined reference to `MQTTClient_waitForCompletion'
-lib//libdatahub-sdk.so: undefined reference to `MQTTClient_create'
-lib//libdatahub-sdk.so: undefined reference to `MQTTClient_freeMessage'
+lib//libdasudian-datahub-sdk.so: undefined reference to `MQTTClient_subscribe'
+lib//libdasudian-datahub-sdk.so: undefined reference to `MQTTClient_disconnect'
+lib//libdasudian-datahub-sdkk.so: undefined reference to `MQTTClient_setCallbacks'
+lib//libdasudian-datahub-sdkk.so: undefined reference to `MQTTClient_publishMessage'
+lib//libdasudian-datahub-sdkk.so: undefined reference to `MQTTClient_isConnected'
+lib//libdasudian-datahub-sdk.so: undefined reference to `MQTTClient_connect'
+lib//libdasudian-datahub-sdk.so: undefined reference to `MQTTClient_unsubscribe'
+lib//libdasudian-datahub-sdk.so: undefined reference to `MQTTClient_destroy'
+lib//libdasudian-datahub-sdk.so: undefined reference to `MQTTClient_free'
+lib//libdasudian-datahub-sdk.so: undefined reference to `MQTTClient_waitForCompletion'
+lib//libdasudian-datahub-sdk.so: undefined reference to `MQTTClient_create'
+lib//libdasudian-datahub-sdk.so: undefined reference to `MQTTClient_freeMessage'
 ```
 
 A: 需要链接库paho-mqtt3cs: -lpaho-mqtt3cs
