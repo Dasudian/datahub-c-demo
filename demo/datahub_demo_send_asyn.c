@@ -1,39 +1,27 @@
 /*
- * send message asynchronously
+ * 异步发送消息
  */
 
 #include "datahub_sdk_c.h"
 #include <string.h>
 #include <stdio.h>
 
-/* instance id, gived by dasudian */
-#define INSTANCE_ID    "dsd_9FmYSNiqpFmi69Bui0_A"
-/* instance key, gived by dasudian */
-#define INSTANCE_KEY   "238f173d6cc0608a"
-/* name of device */
-#define USER_NAME      "sensor1"
-/* id of device */
+/* instance id, 由大数点提供 */
+#define INSTANCE_ID    "dsd_9ITRIalNEYUJMm4Hr6_A"
+/* instance key, 由大数点提供 */
+#define INSTANCE_KEY   "84c07c2339e5cc17"
+/* 设备的名字 */
+#define CLIENT_NAME      "sensor1"
+/* 设备的id */
 #define CLIENT_ID      "1"
 
+/* 发送的topic */
 static char *topic = "topic";
 
+/* 发送的消息 */
 static char *send_message = {
     "hello world"
 };
-
-/* identify a message */
-static datahub_delivery_token g_dt = DATAHUB_DT_INITIALIZER;
-/* 1 means main thread can exit */
-static int g_exit = 0;
-
-/* called when message is delivered successfully */
-void datahub_publish_msg_deliv_cb(void *context, datahub_delivery_token dt)
-{
-    if (dt == g_dt) {
-        fprintf(stdout, "delivered with argument dt\n");
-        g_exit = 1;
-    }
-}
 
 int main()
 {
@@ -42,43 +30,36 @@ int main()
     datahub_message msg = DATAHUB_MESSAGE_INITIALIZER ;
     datahub_options options = DATAHUB_OPTIONS_INITIALIZER;
 
-    /* set callback when message is delivered successfully */
-    options.msg_delivered_cb = datahub_publish_msg_deliv_cb;
+    /* 设置服务器地址 */
+    options.server_url = "tcp://localhost:1883";
 
-    /* create a client object */
+    /* 创建客户端实例 */
     ret = datahub_create(&client,
-            INSTANCE_ID, INSTANCE_KEY, USER_NAME, CLIENT_ID,
+            INSTANCE_ID, INSTANCE_KEY, CLIENT_NAME, CLIENT_ID,
             &options);
-    if (DE_OK != ret) {
+    if (ERROR_NONE != ret) {
         fprintf(stdout, "create client failed\n");
         return 1;
+    } else {
+        fprintf(stdout, "create client success\n");
     }
 
-    /* client connects to server */
-    ret = datahub_connect(&client);
-    if (DE_OK != ret) {
-        fprintf(stdout, "client connects to server failed\n");
-        return 1;
-    }
-
-    /* message to send */
+    /* 发送的消息 */
     msg.payload = send_message;
-    /* len of message */
-    msg.payload_len = strlen(send_message) + 1;//including '\0'
+    /* 消息的长度 */
+    msg.payload_len = strlen(send_message) + 1;//包含结尾符\0
 
-    /* send message asynchronously */
-    ret = datahub_publish(&client, topic, &msg, &g_dt);
-    if (DE_OK != ret) {
+    /* 异步发送qos1消息 */
+    ret = datahub_publish(&client, topic, &msg, 1);
+    if (ERROR_NONE != ret) {
         fprintf(stdout, "asynchronously send message failed\n");
-        datahub_disconnect(&client);
-        return 1;
+    } else {
+        fprintf(stdout, "asynchronously send message success\n");
     }
 
-   /* wait for g_exit equals 1 */
-   while(0 == g_exit) {};
+    /* 断开连接并销毁客户端 */
+    datahub_destroy(&client);
+    fprintf(stdout, "destroy client success\n");
 
-    /* disconnect this session and free memory */
-    datahub_disconnect(&client);
-
-   return 0;
+    return 0;
 }
