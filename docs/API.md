@@ -1,572 +1,356 @@
-# API Definition of Dasudian IoT DataHub C SDK
+# Dasudian IoT DataHub C SDK
+
+- [版本信息](#version)
+- [介绍](#introduce)
+- [创建客户端实例](#create)
+- [异步发送消息](#publish)
+- [同步发送消息](#send_request)
+- [同步订阅主题](#subscribe)
+- [同步取消订阅主题](#unsubscribe)
+- [销毁客户端](#destroy)
+- [释放内存](#free)
+- [选项](#option)
+- [消息结构体](#datahub_message)
+- [错误代码](#error_codes)
+- [client_id](#client_id)
+- [自动重连机制](#autoreconnect)
+
+## <a name="version">版本信息</a>
 
 | Author | Date | Version | Note |
 |---|---|---|---|
-| Eden Wang | 1/13/2017 | 1.0.0 | first version |
-| Eden Wang | 2/14/2017 | 1.1.0 | add option debug|
-| Eden Wang | 2/16/2017 | 1.2.0 | Length of message should be less than 512K|
+| Eden Wang | 1/13/2017 | 1.0.0 | 第一个版本 |
+| Eden Wang | 2/14/2017 | 1.1.0 | 添加选项debug |
+| Eden Wang | 2/16/2017 | 1.2.0 | 限制消息大小, 不超过512K |
+| Eden Wang | 5/5/2017  | 2.0.0 | 根据标准修改 |
 
-## General Info
-These are the C APIs which use protocol MQTT to tranfer massively real-time data to Dasudian IoT Cloud
+## <a name="introduce">介绍</a>
 
-Most APIs are asynchronous.
+SDK基于MQTT协议，传输实时的消息到大数点IoT云服务器
 
-You can publish the infomation collecting from a device to the cloud. Also you can subscribe to
-a topic, receive a message and handle the message.
+你可以收集设备上的数据发送到云上。也可以订阅某个topic，来接收云服务器推送的消息。
 
-To use the SDK:
+如何使用SDK:
 
-1.  Create a client object
+- 创建一个客户端实例
 
-2.  Set or not set the options for connecting to a cloud instance
+- 如果想接收消息，那么就订阅某个topic
 
-3.  Subsrcibe to topics depending on whether the client needs to receive messages
+- 或者发送消息到服务器
 
-4.  Repeatedly publishing messages or handling messages
+- 退出时，销毁该客户端
 
-5.  Disconnect the client object
+## <a name="create">创建客户端实例</a>
 
-## API
-
-### create client of datahub
-
-```
+```c
 /*
- * description:This function creates a client which is ready to connect to cloud. You can
- *          use default options or set your own's.
- * parameter:
- *      client: a valid client object returned by this function after being successfully created.
- *              Note:Can not be NULL.
- *      instance_id: a valid id for connecting to cloud of dasudian, provided by Dasudian
- *              Note:Can not be NULL.
- *      instance_key: a secure key for connecting to cloud of dasudian, provided by Dasudian
- *              Note:Can not be NULL
- *      client_name: name of a device/client, usually describe the device/client
- *              Note:Can not be NULL
- *      client_id: id of device/client, uniquely identifying a device/client
- *              Note:Can not be NULL
- *      options: options of MQTT. See structure datahub_options for details. If you don't want
- *              to set them, just pass NULL. If you want to set some options, please use
- *              DATAHUB_OPTIONS_INITIALIZER to initialize first.
- *              Note:Can be NULL
- *return value:
- *      DE_OK is returned when success,otherwise failed. Error codes are
- *      defined with a beginning of "DE_"
+ * 描述: 该函数创建一个客户端实例，该实例可用于连接大数点MQTT服务器
+ * 参数:
+ *    client: 如果函数成功调用，则会返回一个客户端实例
+ *          注意: 不能为空
+ *    instance_id: 用于连接大数点服务器的唯一标识，由大数点提供
+ *          注意: 不能为空
+ *    instance_key: 用于连接大数点服务器的密码，由大数点提供
+ *          注意: 不能为空
+ *    client_name: 设备的名字
+ *          注意: 不能为空
+ *    client_id: 设备的id
+ *          注意: 不能为空；一个客户可以与服务器建立多条连接，每条连接由instance_id和
+ *          client_id唯一确定
+ *    options: MQTT的选项。具体包含的选项可以查看datahub_options结构体.如果不想设置选项，
+ *          请传递NULL。如果你想设置某些选项，先使用DATAHUB_OPTIONS_INITIALIZER初始化
+ *          注意:可以为空
+ * 返回值:
+ *      ERROR_NONE 表示成功，其他表示错误。
+ *      其他错误码请查看开发文档API.md
  */
 extern int datahub_create(datahub_client *client,
         char *instance_id, char *instance_key, char *client_name, char *client_id,
         datahub_options *options);
 ```
 
-### connect to cloud
+## <a name="publish">异步发送消息</a>
 
-```
+```c
 /*
- * description:
- *      let client connect to cloud of Dasudian.
- * parameter:
- *      client: returned by datahub_create()
- *          Note: can not be NULL
- * return value:
- *      DE_OK is returned when success, otherwise failed. Error codes are
- *      defined with a beginning of "DE_"
- */
-extern int datahub_connect(datahub_client *client);
-```
-
-### get the status of client
-
-```
-/*
- * description:
- *      get the status of client
- * parameter:
- *      client: returned by datahub_create()
- *          Note: can not be NULL
- * return value:
- *      DATAHUB_TRUE means connected and DATAHUB_FALSE means disconnected
- */
-extern int datahub_isconnected(datahub_client *client);
-```
-
-### send messages (asynchronous)
-
-```
-/*
- * description:
- *      publish messages asynchronously
- * parameter:
- *      client: returned by datahub_create()
- *          Note:can not be NULL
- *      topic: name of topic the message belongs to or regards
- *          Note:can not be NULL
- *      msg: define a message, use DATAHUB_MESSAGE_INITIALIZER to init first.
- *          then specify your own data and length of data. Remember, the length of message
- *          should be less than 512K, or an error code is returned
- *          Note: can not be NULL
- *      dt: a token representing a message being delivered, returned by this function.
- *          If you do not care whether this message arrives cloud, set it as NULL.
- *          Otherwise, this token should be defined and used in delivered callback.See
- *          option msg_delivered_cb for details.
- *          Note:can be NULL
- * return value:
- *      DE_OK is returned when success,otherwise failed.Error codes are
- *      defined with a beginning of "DE_"
+ * 描述: 发送消息(异步)
+ *  注意：异步操作不阻塞线程，但不能保证消息发送成功，适用于对时间敏感，对消息成功与否
+ *   不敏感的应用
+ * 参数:
+ *    client: 由函数datahub_create()成功返回的客户端实例
+ *          注意: 不能为空
+ *    topic: 消息对应的topic。如果消息发送前有另一个客户端已经订阅该topic，则
+ *          另一个客户端就会收到消息。
+ *          注意: 不能为空
+ *    msg: 发送的消息,使用前请使用DATAHUB_MESSAGE_INITIALIZER初始化.注意：消息
+ *         的长度必须小于512K，否则会发生错误
+ *          注意: 不能为空
+ *    QoS: 消息的服务质量
+ *          0   消息可能到达，也可能不到达
+ *          1   消息一定会到达，但可能会重复，当然，前提是返回ERROR_NONE
+ *          2   消息一定会到达，且只到达一次，当然，前提是返回ERROR_NONE
+ * 返回值:
+ *      ERROR_NONE 表示成功，其他表示错误。
+ *      其他错误码请查看开发文档API.md
+ *
  */
 
 extern int datahub_publish(datahub_client *client, char *topic,
-        datahub_message *msg, datahub_delivery_token *dt);
+        datahub_message *msg, int QoS);
 ```
-### send messages (synchronous)
 
-```
+## <a name="send_request">同步发送消息</a>
+
+```c
 /*
- * description:
- *      send messages synchronously
- *      Note: program will block untill message is delivered
- * parameter:
- *      client: returned by datahub_create()
- *          Note: can not be NULL
- *      topic: name of topic the message belongs to or regards
- *          Note: can not be NULL
- *      msg: define a message, use DATAHUB_MESSAGE_INITIALIZER to init first.
- *          then specify your own data and length of data. Remember, the length of message
- *          should be less than 512K, or an error code is returned
- *          Note:can not be NULL
- * return value:
- *      DE_OK is returned when success,otherwise failed.Error codes are
- *      defined with a beginning of "DE_"
+ * 描述: 发送消息(同步)
+ *  注意：程序会阻塞
+ * 参数:
+ *    client: 由函数datahub_create()成功返回的客户端实例
+ *          注意: 不能为空
+ *    topic: 消息对应的topic。如果消息发送前有另一个客户端已经订阅该topic，则
+ *          另一个客户端就会收到消息。
+ *          注意: 不能为空
+ *    msg: 发送的消息,使用前请使用DATAHUB_MESSAGE_INITIALIZER初始化.注意：消息
+ *         的长度必须小于512K，否则会发生错误
+ *          注意: 不能为空
+ *    QoS: 消息的服务质量
+ *          0   消息可能到达，也可能不到达
+ *          1   消息一定会到达，但可能会重复，当然，前提是返回ERROR_NONE
+ *          2   消息一定会到达，且只到达一次，当然，前提是返回ERROR_NONE
+ *         注意：只能为0,1,2三者中的一个，其他为非法参数
+ *    timeout: 函数阻塞的最大时间。
+ *          注意：这是函数阻塞的最大时间，不是消息的超时时间
+ * 返回值:
+ *      ERROR_NONE 表示成功，消息一定发送出去。
+ *      ERROR_TIMEOUT 表示阻塞等待时间的最大值已到，但是消息可能发送给服务器，也
+ *          可能未发送。如果想确保消息一定发送出去，请根据消息大小和网络状况设置
+ *          较大的阻塞等待时间.
+ *      其他错误码请查看开发文档API.md
+ *
  */
 
-extern int datahub_sendrequest(datahub_client *client, char *topic, datahub_message *msg);
+extern int datahub_sendrequest(datahub_client *client, char *topic, datahub_message *msg, int QoS, int timeout);
 ```
 
-### subscribe to a topic (synchronous)
+## <a name="subscribe">同步订阅主题</a>
 
-```
+```c
 /*
- * description:
- *      subscribe to a topic(synchronously only)
- * parameter:
- *      client: returned by datahub_create()
- *          Note:can not be NULL
- *      topic: name of topic you want to subscribe to
- *          Note: can not be NULL
- * return value:
- *      DE_OK is returned when success, otherwise failed. Error codes are
- *      defined with a beginning of "DE_"
+ * 描述: 同步订阅某一个topic
+ *  注意：程序会阻塞
+ * 参数:
+ *    client: 由函数datahub_create()成功返回的客户端实例
+ *          注意: 不能为空
+ *    topic: 订阅的topic
+ *          注意: 不能为空
+ *    QoS: 订阅消息的服务质量(发送消息的QoS和订阅消息的QoS共同决定服务器下发消息
+ *          的QoS)
+ *       0   消息可能到达，也可能不到达
+ *       1   消息一定会到达，但可能会重复，当然，前提是返回ERROR_NONE
+ *       2   消息一定会到达，且只到达一次，当然，前提是返回ERROR_NONE
+ *    timeout: 函数阻塞的最大时间。
+ *          注意：这是函数阻塞的最大时间
+ * 返回值:
+ *      ERROR_NONE 表示成功，其他表示错误。
+ *      ERROR_TIMEOUT 表示阻塞等待时间的最大值已到，但是可能订阅成功，也
+ *          可能订阅失败。如果想确保订阅一定成功，请根据设置较大的阻塞等
+ *          待时间.
+ *      其他错误码请查看开发文档API.md
  */
-extern int datahub_subscribe(datahub_client *client, char *topic);
+extern int datahub_subscribe(datahub_client *client, char *topic, int qos, int timeout);
 ```
 
-### unsubscribe a topic(synchronous)
+## <a name="unsubscribe">同步取消订阅主题</a>
 
-```
+```c
 /*
- * description:
- *      unsubscribe a topic(synchronously only)
- * parameter:
- *      client: returned by datahub_create()
- *          Note: can not be NULL
- *      topic: name of topic you want to unsubscribe
- *          Note: can not be NULL
- * return value:
- *      DE_OK is returned when success,otherwise failed.Error codes are
- *      defined with a beginning of "DE_"
+ * 描述: 同步取消订阅某一个topic
+ * 参数:
+ *    client: 由函数datahub_create()成功返回的客户端实例
+ *          注意: 不能为空
+ *    topic: 取消订阅的topic
+ *          注意: 不能为空
+ *    timeout: 函数阻塞的最大时间。
+ *          注意：这是函数阻塞的最大时间
+ * 返回值:
+ *      ERROR_NONE 表示成功，其他表示错误。
+ *      ERROR_TIMEOUT 表示阻塞等待时间的最大值已到，但是可能取消成功，也
+ *          可能取消失败。如果想确保取消一定成功，请根据设置较大的阻塞等
+ *          待时间.
+ *      其他错误码请查看开发文档API.md
  */
-extern int datahub_unsubscribe(datahub_client *client, char *topic);
+extern int datahub_unsubscribe(datahub_client *client, char *topic, int timeout);
 ```
 
-### close session(synchronous)
+## <a name="destroy">销毁客户端</a>
 
-```
+```c
 /*
- * description:
- *      close session
- * parameter:
- *      client: returned by datahub_create()
- *          Note: can not be NULL
- * return value:
- *      DE_OK is returned when success,otherwise failed. Error codes are
- *      defined with a beginning of "DE_"
+ * 描述: 销毁客户端并断开连接
+ * 参数:
+ *    client: 由函数datahub_create()成功返回的客户端实例
+ *          注意: 不能为空
+ * 返回值:
+ *    无返回值
  */
-extern int datahub_disconnect(datahub_client *client);
+extern void  datahub_destroy(datahub_client *client);
 ```
 
-### free memory of message
+## <a name="free">释放回调函数(接收)返回消息所占用的内存</a>
 
-````
+```c
 /*
- * description:
- *      free the memory the message occupies
- *      only useful in callback of receiving a message
- * parameter:
- *     msg: describing a message
- *     Note: can not be NULL
- * return value:
- *      none
+ * 描述：接收函数中，主题和消息占用的内存需要用户手动释放
+ * 参数：
+ *  topic: 返回的主题
+ *  msg: 返回的消息
+ * 返回值:
+ *  无
  */
-extern void datahub_message_free(datahub_message *msg);
-````
-
-## Data structure
-
-### datahub_options
-
+extern void datahub_callback_free(char *topic, datahub_message *msg);
 ```
+
+## <a name="option">选项</a>
+
+```c
 typedef struct datahub_options_s {
     /*
-     * description:
-     *      url of server.
-     * value:
-     *      "protocol://host:port".protocol supports tcp and ssl;host can be ip or domain
-     *      default is DEFAULT_SERVER_URL
+     * 描述: 设置使用哪种协议(ssl, 普通的tcp)连接服务器, 以及设置服务器的地址和端口号.
+     * 值:
+     *     "协议：//服务器地址：端口号". 协议支持普通的tcp协议和加密的ssl协议; 服务器地址和端口号
+     *      由大数点提供. 默认值为DEFAULT_SERVER_URL
      */
     char *server_url;
 
     /*
-     * description:
-     *      whether or not reconnect automatically if connection is lost.
-     *      When connection is lost,(1)if auto_reconnect is set DATAHUB_TRUE,then we will
-     *      try reconnect to server in a few seconds,(2)If auto_reconnect is set DATAHUB_FALSE,
-     *      callback "connection_lost_cb" will be called if it's set
-     * value:
-     *      DATAHUB_TRUE means yes and DATAHUB_FALSE means no.
-     *      default is DEFAULT_AUTO_RECON
+     * 描述：开启调试选项
+     * 值：
+     *      DATAHUB_TRUE表示开启调试选项;DATAHUB_FALSE表示关闭调试选项,默认值为DATAHUB_FALSE
      */
-    int auto_reconnect;
+    int debug;
 
     /*
-     * description:
-     *      whether or not clean session after disconnecting
-     * value:
-     *      DATAHUB_TRUE means yes and DATAHUB_FALSE means no
-     *      default is DEFAULT_CLEAN_SES
+     * 描述: 是否保存客户端的会话信息.
+     *     cleansession为DATAHUB_FALSE, 当客户端断线或下线后, 保存客户端订阅的topic和发送给客户端的所有消息.
+     *     cleansession为DATAHUB_TRUE, 当客户端断线或下线后, 不保留客户端订阅的topic和发送给客户端的任何消息.
+     * 值: 
+     *     默认为DATAHUB_FALSE
      */
-    int clean_session;
+
+    int cleansession;
 
     /*
-     * description:
-     *      timeout when connecting server(seconds)
-     * value:
-     *      works when value > 0
-     *      default is DEFAULT_CONN_TMOUT
-     */
-    long long connection_timeout;
-
-    /*
-     * description:
-     *      timeout when sending message synchronously
-     * value:
-     *      works when value > 0
-     *      default is DEFAULT_COMM_TMOUT
-     */
-    long long command_timeout;
-
-    /*
-     * description:
-     *      ignore certificate when connecting to server with security
-     * value:
-     *      DATAHUB_TRUE means yes and DATAHUB_FALSE means no
-     *      default is DEFAULT_IGN_CERT
-     *      note:must be DATAHUB_TRUE for now
-     */
-    int ignore_certificate;
-
-    /*
-     * description:
-     *      use default certificate when connecting with security
-     * value:
-     *      DATAHUB_TRUE means yes and DATAHUB_FALSE means no
-     *      default is DEFAULT_DEF_CERT
-     *      note:not support yet,will be added in the future
-     */
-    int default_certificate;
-
-    /*
-     * description:
-     *      use private certificate when connecting with security
-     * value:
-     *      NULL or path of certificate
-     *      default is DEFAULT_PRIVATE_CERT
-     *      note:not support yet,will be added in the future
-     */
-    char *private_certificate;
-
-    /*
-     * description:
-     *      switch to open/close debug. For debug
-     *  value:
-     *      DATAHUB_FALSE or DATAHUB_TRUE
-     *      default is DATAHUB_FALSE
-     */
-    int isdebug;
-
-    /*
-     * description:
-     *      a pointer which will be passed as an argument to callbacks,
-     *      including msg_delivered_cb,msg_received_cb,and connection_lost_cb.
-     *      this three callbacks is defined below.
+     * 描述:
+     *      传递给回调函数message_received()和connection_status_changed()的参数, 对应回调函数的第一个参数
+     *      context
+     * 值:
+     *      默认值为NULL
      */
     void *context;
-     /*
-     * description:
-     *      a callback,called after delivering a message
-     * value:
-     *      NULL or a valid callback
-     *      default is DEFAULT_CALLBACK
-     */
-    MESSAGE_DELIVERED *msg_delivered_cb;
 
     /*
-     * description:
-     *      a callback,called after receiving a message
-     * value:
-     *      NULL or a valid callback
-     *      default is DEFAULT_CALLBACK
+     * 描述： 接收到消息后的回调函数
+     * 值:
+     *      NULL或者函数指针, 默认值为DEFAULT_CALLBACK
      */
-    MESSAGE_RECEIVED *msg_received_cb;
+    MESSAGE_RECEIVED *message_received;
 
     /*
-     * description:
-     *      a callback,called after losing connection.
-     *      option "auto_reconnect" must be set DATAHUB_FALSE otherwise this callback
-     *      will not be called.
-     * value:
-     *      NULL or a valid callback
-     *      default is DEFAULT_CALLBACK
+     * 描述： 当客户端的状态发生改变(连接上服务器或者从服务器断开)的时候，SDK会通知用户
+     * 值:
+     *      NULL或者函数指针, 默认值为DEFAULT_CALLBACK
      */
-    CONNECTION_LOST *connection_lost_cb;
+    CONNECTION_STATUS_CHANGED *connection_status_changed;
 }datahub_options;
 ```
 
-### datahub_message
+## <a name="datahub_message">消息结构体datahub_message</a>
 
-```
+```c
+/*
+ * 描述: 消息的结构体类型
+ */
 typedef struct datahub_message_s {
-    /* len of message */
-    int payload_len;
-    /* start of message */
+    /* 消息长度，必须大于0 */
+    unsigned int payload_len;
+    /* 发送消息的起始地址 */
     void *payload;
-}datahub_message;
-```
-
-## Error codes
+} datahub_message;
 
 ```
+
+## <a name="error_codes">错误码</a>
+
+```c
 enum datahub_error_code_s {
     /*
-     * Return code: success
+     * 返回码: 成功
      */
-    DE_OK = 0,
+    ERROR_NONE = 0,
     /*
-     * Return code: unacceptable protocol version
+     * 返回码: 某些参数不合法
      */
-    DE_UNACCEPT_PROTO_VER = 1,
+    ERROR_ILLEGAL_PARAMETERS = -1,
     /*
-     * Return code: identifier rejected
+     * 返回码: 客户端未连接服务器
      */
-    DE_IDENT_REJ = 2,
+    ERROR_DISCONNECTED = -2,
     /*
-     * Return code: server unavailable
+     * 返回码: MQTT服务器不支持当前使用的协议版本号,请联系开发人员
      */
-    DE_SERVER_UNAVAIL = 3,
+    ERROR_UNACCEPT_PROTOCOL_VERSION = -3,
     /*
-     * Return code: bad instance id or instance key
+     * 返回码: client_id不可用,可能使用了不支持的字符或者client_id的长度太大
      */
-    DE_BAD_UNAME_PASSWD = 4,
+    ERROR_IDENTIFIER_REJECTED = -4,
     /*
-     * Return code: unathorized
+     * 返回码: 服务器不可用
      */
-    DE_UNATHOR = 5,
-
+    ERROR_SERVER_UNAVAILABLE = -5,
     /*
-     * Return code:server authorizing users is unavailable
+     * 返回码: instance_id 或者instance_key不正确,请检查或者联系客服人员
      */
-    DE_AUTHO_SERVER_UNAVAIL = 300,
-     /*
-     * Return code: other errors when connecting to server
-     */
-    DE_CONNECT_OTHER_ERROR = 301,
+    ERROR_BAD_USERNAME_OR_PASSWD = -6,
     /*
-     * Return code: some essential arguments are NULL
+     * 返回码: 未被授权
      */
-    DE_NULL = 302,
+    ERROR_UNAUTHORIZED = -7,
     /*
-     * Return code: memory allocation failed
+     * 返回码: 验证服务器不可用
      */
-    DE_MEM_ALLOC = 303,
+    ERROR_AUTHORIZED_SERVER_UNAVAILABLE = -8,
     /*
-     * Return code: create client of MQTT failed
+     * 返回码: 操作失败
      */
-    DE_CREATE_MQTT_CLI = 304,
+    ERROR_OPERATION_FAILURE = -9,
     /*
-     * Return code: set callbacks of MQTT failed
+     * 返回码: 消息过长
      */
-    DE_SET_CB_ERROR = 305,
-
+    ERROR_MESSAGE_TOO_BIG = -10,
     /*
-     * Return code: message is wrong
+     * 返回码: 网络不可用
      */
-    DE_MESSAGE_ERROR = 306,
+    ERROR_NETWORK_UNREACHABLE = -11,
     /*
-     * Return code: error occurs when sending a message
+     * 返回码: 同步超时
      */
-    DE_SEND_MSG_ERROR = 307,
-
+    ERROR_TIMEOUT = -12,
     /*
-     * Return code: error occurs when subscribing a topic
+     * 返回码: 内存申请失败
      */
-    DE_SUBSCRIBE_ERROR = 308,
-
-    /*
-     * Return code: error occurs when unsubscribing a topic
-     */
-    DE_UNSUBSCRIBE_ERROR = 309,
-
-    /*
-     * Return code: error occurs when disconnecting
-     */
-    DE_DISCON_FAIL = 310,
-
-    /*
-     * Return code: client is disconnected
-     */
-    DE_CLIENT_DISCON = 311,
-
-    /*
-     * Return code: connect fail,losing Internet or bad url of server
-     *  can cause this
-     */
-    DE_CON_FAIL = 312
+    ERROR_MEMORY_ALLOCATE = -100,
 };
 ```
-## Glossary
 
-### client_id
+## <a name="client_id">client_id</a>
 
-*client_id* is used to identify a device. For example, if you have 2 sensors which will connect to server, one sensor's *client_name* can be "sensor1" and *client_id* can be "1". Another sensor's *client_name* can be "sensor2"(it can be set "sensor1" too) and *client_id* must **not** be "1". You can set it as "2". That means the server identifies a sensor by *client_id*.
+客户端id，用于服务器唯一标记一个客户端，服务器通过该id向客户端推送消息;
+注意：不同的客户端的id必须不同，如果有两个客户端有相同的id，服务器会关掉其中的一个客户端的连接。
+可以使用设备的mac地址，或者第三方账号系统的id（比如qq号，微信号）。
+如果没有自己的账号系统，则可以随机生成一个不会重复的客户端id。
+或者自己指定客户端的id，只要能保证不同客户端id不同即可。
 
-It also means if you want to create several connections with server, you should set a **unique** *client_id* for every connection.
+## <a name="autoreconnect">自动重连机制</a>
 
-### auto_reconnect
-
-It will take about 60 seconds to know a connection is lost. When connection is lost, we will try to reconnect to server if you set auto_reconnect as DATAHUB_TRUE. If it still fails, retry will start in 2s,then 4s,8s,...The maxmine interval is 64s.
-
-## Development environment
-
-### Linux
-
-.Platform: Ubuntu 16.04 LTS 4.4.0-59-generic x86_64
-
-. Compiler: gcc 5.4.0
-
-### Windows
-
-
-. Platform: Windows 7 Home Basic x86_64
-
-. Compiler: Code Blocks 16.01
-
-
-## Running environment
-
-### Linux
-
-It should work on all Linux distributions. But if the version of some dependencies on your Linux distribution are less than what the development environment depends, it may not work. Please upgrade your machine or contact support@dasudian.com.
-
-### Windows
-
-It should work on both windows x86 and windows x86_64. But if the version of some dependencies are less than what the development environment depends, it may not work. Please upgrade your machine or contact support@dasudian.com.
-
-## Q&A
-
-### Ubuntu
-
-We use gcc as compiler default.
-
-Q:
-```
-datahub_demo_send_syn.c:(.text+0x49): undefined reference to `datahub_create'
-datahub_demo_send_syn.c:(.text+0x86): undefined reference to `datahub_connect'
-datahub_demo_send_syn.c:(.text+0xf1): undefined reference to `datahub_sendrequest'
-datahub_demo_send_syn.c:(.text+0x124): undefined reference to `datahub_disconnect'
-datahub_demo_send_syn.c:(.text+0x137): undefined reference to `datahub_disconnect'
-```
-
-A: You should add compilation option: -ldatahub-sdk
-
-Q:
-```
-/usr/bin/ld: cannot find -ldatahub-sdk
-```
-
-A: You should add compilation option: -L lib64-linux
-
-Q:
-```
-lib64-linux//libdatahub-sdk.so: undefined reference to `MQTTClient_subscribe'
-lib64-linux//libdatahub-sdk.so: undefined reference to `MQTTClient_disconnect'
-lib64-linux//libdatahub-sdk.so: undefined reference to `MQTTClient_setCallbacks'
-lib64-linux//libdatahub-sdk.so: undefined reference to `MQTTClient_publishMessage'
-lib64-linux//libdatahub-sdk.so: undefined reference to `MQTTClient_isConnected'
-lib64-linux//libdatahub-sdk.so: undefined reference to `MQTTClient_connect'
-lib64-linux//libdatahub-sdk.so: undefined reference to `MQTTClient_unsubscribe'
-lib64-linux//libdatahub-sdk.so: undefined reference to `MQTTClient_destroy'
-lib64-linux//libdatahub-sdk.so: undefined reference to `MQTTClient_free'
-lib64-linux//libdatahub-sdk.so: undefined reference to `MQTTClient_waitForCompletion'
-lib64-linux//libdatahub-sdk.so: undefined reference to `MQTTClient_create'
-lib64-linux//libdatahub-sdk.so: undefined reference to `MQTTClient_freeMessage'
-```
-
-A: You should add compilation option: -lpaho-mqtt3cs
-
-Q:
-```
-./main: error while loading shared libraries: libdatahub-sdk.so: cannot open shared object file: No such file or directory
-```
-
-A: You should add compilation option: -Wl,-rpath=lib64-linux
-
-### Windows
-
-We use Code Blocks as compiler default.
-
-Q:
-```
-xxx.c: fatal error: datahub_sdk_c.h: No such file or directory
-```
-
-A:Path of searching directories is set wrongly. Try:
-
-Your Projects -> Build options -> Search directories -> Compiler -> Add, then choose the directory including "datahub_sdk_c.h"(default is *include*)
-
-Q:
-```
-xxx.c: undefined reference to `datahub_create'
-xxx.c: undefined reference to `datahub_connect'
-xxx.c: undefined reference to `datahub_sendrequest'
-xxx.c: undefined reference to `datahub_disconnect'
-xxx.c: undefined reference to `datahub_disconnect'
-```
-A:Path of searching dynamic libraries is set wrongly. Try:
-
-Projects -> Build options -> Search directories -> Linker -> Add, then choose the directory including "datahub_sdk.dll"(default is *lib32-win*)
-
-Projects -> Build options -> Linker Settings -> Add, then choose the file "datahub_sdk.dll" in directory lib32-win.(default filter is .so or .a, you should change it to "All files(\*)". So "datahub_sdk.dll" is found)
-
-Q:无法启动此程序，因为计算机中丢失paho-mqtt3c.dll。尝试重新安装该程序以解决此问题
-
-A:Please copy all .dll files in directory *lib32-win* to the same path of the application
-
-Q:无法启动此程序，因为计算机中丢失LIBEAY32.dll。尝试重新安装该程序以解决此问题
-
-A:Please copy all .dll files in directory *lib32-win* to  the same path of the application
-
-Q:无法启动此程序，因为计算机中丢失SSLEAY32.dll。尝试重新安装该程序以解决此问题
-
-A:Please copy all .dll files in directory *lib32-win* to  the same path of the application
-
-## Support
-
-If there are other problems or advice, Please send a email to support@dasudian.com.
+当连接丢失时，SDK会尝试自动重连。如果连接失败，下一次重连将会在1s，2s，4s，8s，16s，1s，2s，4s，8s，16s，1s，...后再次尝试，最大重连间隔为16秒。
