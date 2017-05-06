@@ -15,7 +15,7 @@ A: 需要添加链接选项 -ldasudian-datahub-sdk
 
 Q:
 ```
-/usr/bin/ld: cannot find -ldasudian-ddasudian-datahub-sdkatahub-sdk
+/usr/bin/ld: cannot find -ldasudian-datahub-sdk
 ```
 
 A: 需要指明SDK库所在的路径: -L lib
