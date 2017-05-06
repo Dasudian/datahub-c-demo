@@ -5,6 +5,7 @@
 #include "datahub_sdk_c.h"
 #include <string.h>
 #include <stdio.h>
+#include <unistd.h>
 
 /* instance id, 由大数点提供 */
 #define INSTANCE_ID    "dsd_9ITRIalNEYUJMm4Hr6_A"
@@ -26,9 +27,9 @@ static char *send_message = {
 /* 接收到消息后的回调函数 */
 static void message_received(void *context, char *topic, datahub_message *msg)
 {
-    fprintf("receive a message:\n");
-    fprintf("topic: %s\n", topic);
-    fprintf("payload: %*.s\n", msg->payload_len, (char *)msg->payload);
+    fprintf(stdout, "receive a message: ");
+    fprintf(stdout, "topic: %s ", topic);
+    fprintf(stdout, "payload: %.*s\n", msg->payload_len, (char *)msg->payload);
 
     datahub_callback_free(topic, msg);
 }
@@ -57,7 +58,7 @@ int main()
     }
 
     /* 订阅待发送消息的topic, 最大以qos1接收, 这样就可以接收到自己发送的消息 */
-    ret = datahub_subscribe(&client, topic, 1);
+    ret = datahub_subscribe(&client, topic, 1, 5);
     if (ERROR_NONE != ret) {
         fprintf(stdout, "subscribe topic %s failed\n", topic);
     } else {
@@ -86,7 +87,7 @@ int main()
     }
 
     /* 睡眠以便于接收完服务器下发的消息 */
-    sleep(3);
+    sleep(1);
     /* 断开连接并销毁客户端 */
     datahub_destroy(&client);
     fprintf(stdout, "destroy client success\n");
