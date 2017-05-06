@@ -24,9 +24,9 @@ Q:
 ```
 lib//libdasudian-datahub-sdk.so: undefined reference to `MQTTClient_subscribe'
 lib//libdasudian-datahub-sdk.so: undefined reference to `MQTTClient_disconnect'
-lib//libdasudian-datahub-sdkk.so: undefined reference to `MQTTClient_setCallbacks'
-lib//libdasudian-datahub-sdkk.so: undefined reference to `MQTTClient_publishMessage'
-lib//libdasudian-datahub-sdkk.so: undefined reference to `MQTTClient_isConnected'
+lib//libdasudian-datahub-sdk.so: undefined reference to `MQTTClient_setCallbacks'
+lib//libdasudian-datahub-sdk.so: undefined reference to `MQTTClient_publishMessage'
+lib//libdasudian-datahub-sdk.so: undefined reference to `MQTTClient_isConnected'
 lib//libdasudian-datahub-sdk.so: undefined reference to `MQTTClient_connect'
 lib//libdasudian-datahub-sdk.so: undefined reference to `MQTTClient_unsubscribe'
 lib//libdasudian-datahub-sdk.so: undefined reference to `MQTTClient_destroy'
