@@ -2,7 +2,7 @@
 
 该项目提供由C SDK开发的demo程序.
 
-此文档介绍该项目的目录结构和各个文件的功能, 如何编译和运行demo程序. 如果您想了解API的细节, 请阅读 [API](docs/API.pdf) 或者头文件 [datahub_sdk_c.h](include/datahub_sdk_c.h).
+此文档介绍该项目的目录结构和各个文件的功能, 如何编译和运行demo程序. 如果您想了解API的细节, 请阅读docs目录下的API文档或者头文件 [datahub_sdk_c.h](include/datahub_sdk_c.h).
 
 ## 目录结构说明
 
