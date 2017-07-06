@@ -7,12 +7,12 @@
 #include <stdio.h>
 #include <unistd.h>
 
-/* instance id, 由大数点提供 */
-#define INSTANCE_ID    "dsd_9ITRIalNEYUJMm4Hr6_A"
-/* instance key, 由大数点提供 */
-#define INSTANCE_KEY   "84c07c2339e5cc17"
+/* instance id, 标识客户的唯一ID，请联系大数点商务support@dasudian.com获取 */
+#define INSTANCE_ID    "your_instance_id"
+/* instance key, 与客户标识相对应的安全密钥，请联系大数点商务support@dasudian.com获取 */
+#define INSTANCE_KEY   "your_instance_key"
 /* 设备的名字 */
-#define CLIENT_NAME      "sensor1"
+#define CLIENT_NAME    "sensor1"
 /* 设备的id */
 #define CLIENT_ID      "1"
 
@@ -41,8 +41,8 @@ int main()
     datahub_message msg = DATAHUB_MESSAGE_INITIALIZER ;
     datahub_options options = DATAHUB_OPTIONS_INITIALIZER;
 
-    /* 设置服务器地址 */
-    options.server_url = "tcp://localhost:1883";
+     /* 大数点IoT DataHub云端地址，请联系大数点商务support@dasudian.com获取 */
+    options.server_url = "tcp://server_url:1883";
     /* 设置接收到消息后的回调函数 */
     options.message_received = message_received;
 
@@ -69,14 +69,6 @@ int main()
     msg.payload = send_message;
     /* 消息的长度 */
     msg.payload_len = strlen(send_message) + 1;//包含结尾符\0
-
-    /* 异步发送qos1消息 */
-    ret = datahub_publish(&client, topic, &msg, 1);
-    if (ERROR_NONE != ret) {
-        fprintf(stdout, "asynchronously send message failed\n");
-    } else {
-        fprintf(stdout, "asynchronously send message success\n");
-    }
 
     /* 同步发送qos2消息 */
     ret = datahub_sendrequest(&client, topic, &msg, 1, 2);
