@@ -2,7 +2,7 @@
 
 该项目提供由C SDK开发的demo程序.
 
-此文档介绍该项目的目录结构和各个文件的功能, 如何编译和运行demo程序. 如果您想了解API的细节, 请阅读 [API.md](docs/API.md) 或者头文件 [datahub_sdk_c.h](include/datahub_sdk_c.h).
+此文档介绍该项目的目录结构和各个文件的功能, 如何编译和运行demo程序. 如果您想了解API的细节, 请阅读 [API](docs/API.pdf) 或者头文件 [datahub_sdk_c.h](include/datahub_sdk_c.h).
 
 ## 目录结构说明
 
@@ -14,9 +14,7 @@
 
 ### docs目录
 
-*API.md* 包含各个API的详细介绍和用法.
-
-*FAQ.md* 包含一些常见的问题和解决方法.
+*API.pdf* 包含各个API的详细介绍和用法, 以及常见问题
 
 ### include目录
 
@@ -36,14 +34,14 @@
 
 操作系统: Ubuntu 16.04, 4.4.0-75-generic
 
-编译
+根据提示下载最新的SDK, 再编译
 
 ```
-$make
+$ make
 ```
 
 运行
 
 ```
-$./main
+$ ./main
 ```
