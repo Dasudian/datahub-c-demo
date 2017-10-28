@@ -11,8 +11,8 @@
 #define INSTANCE_ID    "your_instance_id"
 /* instance key, 与客户标识相对应的安全密钥，请联系大数点商务support@dasudian.com获取 */
 #define INSTANCE_KEY   "your_instance_key"
-/* 设备的名字 */
-#define CLIENT_NAME    "sensor1"
+/* 设备类型 */
+#define CLIENT_TYPE     "sensor"
 /* 设备的id */
 #define CLIENT_ID      "1"
 
@@ -20,9 +20,7 @@
 static char *topic = "topic";
 
 /* 发送的消息 */
-static char *send_message = {
-    "hello world"
-};
+static char *send_message = "{\"context\":\"hello world\"}";
 
 /* 接收到消息后的回调函数 */
 static void message_received(void *context, char *topic, datahub_message *msg)
@@ -48,7 +46,7 @@ int main()
 
     /* 创建客户端实例 */
     ret = datahub_create(&client,
-            INSTANCE_ID, INSTANCE_KEY, CLIENT_NAME, CLIENT_ID,
+            INSTANCE_ID, INSTANCE_KEY, CLIENT_TYPE, CLIENT_ID,
             &options);
     if (ERROR_NONE != ret) {
         fprintf(stdout, "create client failed\n");
@@ -68,12 +66,12 @@ int main()
     /* 发送的消息 */
     msg.payload = send_message;
     /* 消息的长度 */
-    msg.payload_len = strlen(send_message) + 1;//包含结尾符\0
+    msg.payload_len = strlen(send_message);
 
-    /* 同步发送qos2消息 */
-    ret = datahub_sendrequest(&client, topic, &msg, 1, 2);
+    /* 同步发送qos1消息 */
+    ret = datahub_sendrequest(&client, topic, &msg, JSON, 1, 10);
     if (ERROR_NONE != ret) {
-        fprintf(stdout, "synchronously send message failed\n");
+        fprintf(stdout, "synchronously send message failed, ret [%d]\n", ret);
     } else {
         fprintf(stdout, "synchronously send message success\n");
     }
